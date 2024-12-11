@@ -16,13 +16,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.appharbr.kotlin.example.app.R
 import com.appharbr.kotlin.example.app.ui.theme.AppHarbrExampleAppTheme
-import com.appharbr.sdk.engine.AdBlockReason
 import com.appharbr.sdk.engine.AdSdk
 import com.appharbr.sdk.engine.AdStateResult
 import com.appharbr.sdk.engine.AppHarbr
-import com.appharbr.sdk.engine.adformat.AdFormat
 import com.appharbr.sdk.engine.listeners.AHAnalyze
-import com.appharbr.sdk.engine.listeners.AHListener
 import com.appharbr.sdk.engine.listeners.AdAnalyzedInfo
 import com.appharbr.sdk.engine.listeners.AdIncidentInfo
 import com.appharbr.sdk.engine.mediators.gam.rewarded.AHGamRewardedAd
@@ -32,7 +29,6 @@ import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.rewarded.RewardItem
 import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
-import java.util.*
 
 class GamRewardedActivity : ComponentActivity() {
 
@@ -96,6 +92,8 @@ class GamRewardedActivity : ComponentActivity() {
                 if (isDestroyed) {
                     return
                 }
+
+                setFullScreenCallBack()
                 showAd()
             }
 
@@ -128,8 +126,8 @@ class GamRewardedActivity : ComponentActivity() {
     //Check was rewarded Ad blocked or not
     private fun showAd() {
         ahGamRewardedAd.gamRewardedAd?.let {
-            val rewardedState = AppHarbr.getRewardedState(ahGamRewardedAd)
-            if (rewardedState != AdStateResult.BLOCKED) {
+            val rewardedResult = AppHarbr.getRewardedResult(ahGamRewardedAd)
+            if (rewardedResult.adStateResult != AdStateResult.BLOCKED) {
                 Log.d(
                     "LOG",
                     "**************************** AppHarbr Permit to Display GAM Rewarded ****************************"

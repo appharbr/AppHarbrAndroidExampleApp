@@ -16,13 +16,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.appharbr.kotlin.example.app.R
 import com.appharbr.kotlin.example.app.ui.theme.AppHarbrExampleAppTheme
-import com.appharbr.sdk.engine.AdBlockReason
 import com.appharbr.sdk.engine.AdSdk
 import com.appharbr.sdk.engine.AdStateResult
 import com.appharbr.sdk.engine.AppHarbr
-import com.appharbr.sdk.engine.adformat.AdFormat
 import com.appharbr.sdk.engine.listeners.AHAnalyze
-import com.appharbr.sdk.engine.listeners.AHListener
 import com.appharbr.sdk.engine.listeners.AdAnalyzedInfo
 import com.appharbr.sdk.engine.listeners.AdIncidentInfo
 import com.appharbr.sdk.engine.mediators.gam.interstitial.AHGamInterstitialAd
@@ -31,7 +28,6 @@ import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.admanager.AdManagerAdRequest
 import com.google.android.gms.ads.admanager.AdManagerInterstitialAd
 import com.google.android.gms.ads.admanager.AdManagerInterstitialAdLoadCallback
-import java.util.*
 
 class GamInterstitialActivity : ComponentActivity() {
 
