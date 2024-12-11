@@ -158,6 +158,11 @@ class AdmobRewardedActivity : ComponentActivity() {
                 "LOG",
                 "AppHarbr - onAdBlocked for: ${incidentInfo?.unitId}, reason: " + incidentInfo?.blockReasons.contentToString()
             )
+
+            if (incidentInfo?.shouldLoadNewAd == true) {
+                // If add was blocked before being displayed, load new add
+                requestAd()
+            }
         }
 
         override fun onAdIncident(incidentInfo: AdIncidentInfo?) {
