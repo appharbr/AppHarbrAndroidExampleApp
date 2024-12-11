@@ -20,7 +20,10 @@ import com.appharbr.sdk.engine.AdBlockReason
 import com.appharbr.sdk.engine.AdSdk
 import com.appharbr.sdk.engine.AppHarbr
 import com.appharbr.sdk.engine.adformat.AdFormat
+import com.appharbr.sdk.engine.listeners.AHAnalyze
 import com.appharbr.sdk.engine.listeners.AHListener
+import com.appharbr.sdk.engine.listeners.AdAnalyzedInfo
+import com.appharbr.sdk.engine.listeners.AdIncidentInfo
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.LoadAdError
@@ -114,14 +117,26 @@ class GamBannerActivity : ComponentActivity() {
         }
     }
 
-    private val ahListener =
-        AHListener { view: Any?, unitId: String?, adFormat: AdFormat?, reasons: Array<AdBlockReason?>? ->
+    var ahListener = object : AHAnalyze {
+        override fun onAdBlocked(incidentInfo: AdIncidentInfo?) {
             Log.d(
                 "LOG",
-                "AppHarbr - onAdBlocked for: $unitId, reason: " + Arrays.toString(
-                    reasons
-                )
+                "AppHarbr - onAdBlocked for: ${incidentInfo?.unitId}, reason: " + incidentInfo?.blockReasons.contentToString()
             )
         }
 
+        override fun onAdIncident(incidentInfo: AdIncidentInfo?) {
+            Log.d(
+                "LOG",
+                "AppHarbr - onAdIncident for: ${incidentInfo?.unitId}, reason: " + incidentInfo?.blockReasons.contentToString()
+            )
+        }
+
+        override fun onAdAnalyzed(analyzedInfo: AdAnalyzedInfo?) {
+            Log.d(
+                "LOG",
+                "AppHarbr - onAdAnalyzed for: ${analyzedInfo?.unitId}, result: ${analyzedInfo?.analyzedResult}"
+            )
+        }
+    }
 }

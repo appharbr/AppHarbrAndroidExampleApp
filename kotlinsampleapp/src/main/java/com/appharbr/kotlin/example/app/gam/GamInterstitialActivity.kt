@@ -21,8 +21,12 @@ import com.appharbr.sdk.engine.AdSdk
 import com.appharbr.sdk.engine.AdStateResult
 import com.appharbr.sdk.engine.AppHarbr
 import com.appharbr.sdk.engine.adformat.AdFormat
+import com.appharbr.sdk.engine.listeners.AHAnalyze
 import com.appharbr.sdk.engine.listeners.AHListener
+import com.appharbr.sdk.engine.listeners.AdAnalyzedInfo
+import com.appharbr.sdk.engine.listeners.AdIncidentInfo
 import com.appharbr.sdk.engine.mediators.gam.interstitial.AHGamInterstitialAd
+import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.admanager.AdManagerAdRequest
 import com.google.android.gms.ads.admanager.AdManagerInterstitialAd
@@ -92,6 +96,8 @@ class GamInterstitialActivity : ComponentActivity() {
                 if (isDestroyed) {
                     return
                 }
+
+                setFullScreenCallBack()
                 showAd()
             }
 
@@ -101,11 +107,31 @@ class GamInterstitialActivity : ComponentActivity() {
         }
 
     //      **** (3) ****
+    // Add full screen callbacks for the add
+    private fun setFullScreenCallBack() {
+        ahGamInterstitialAd.gamInterstitialAd?.fullScreenContentCallback =
+            object : FullScreenContentCallback() {
+                override fun onAdShowedFullScreenContent() {
+                    ahGamInterstitialAd.setInterstitialAd(null)
+                }
+
+                override fun onAdDismissedFullScreenContent() {
+                    Log.d(
+                        "LOG",
+                        "**************************** AppHarbr Interstitial Add Dismissed ****************************"
+                    )
+
+                    // You may load new add
+                }
+            }
+    }
+
+    //      **** (4) ****
     //Check was interstitial Ad blocked or not
     private fun showAd() {
         ahGamInterstitialAd.gamInterstitialAd?.let {
-            val interstitialState = AppHarbr.getInterstitialState(ahGamInterstitialAd)
-            if (interstitialState != AdStateResult.BLOCKED) {
+            val interstitialResult = AppHarbr.getInterstitialResult(ahGamInterstitialAd)
+            if (interstitialResult.adStateResult != AdStateResult.BLOCKED) {
                 Log.d(
                     "LOG",
                     "**************************** AppHarbr Permit to Display GAM Interstitial ****************************"
@@ -121,14 +147,31 @@ class GamInterstitialActivity : ComponentActivity() {
         } ?: Log.d("TAG", "The GAM interstitial wasn't loaded yet.")
     }
 
-    var ahListener =
-        AHListener { view: Any?, unitId: String?, adFormat: AdFormat?, reasons: Array<AdBlockReason?>? ->
+    var ahListener = object : AHAnalyze {
+        override fun onAdBlocked(incidentInfo: AdIncidentInfo?) {
             Log.d(
                 "LOG",
-                "AppHarbr - onAdBlocked for: $unitId, reason: " + Arrays.toString(
-                    reasons
-                )
+                "AppHarbr - onAdBlocked for: ${incidentInfo?.unitId}, reason: " + incidentInfo?.blockReasons.contentToString()
+            )
+
+            if (incidentInfo?.shouldLoadNewAd == true) {
+                // If add was blocked before being displayed, load new add
+                requestAd()
+            }
+        }
+
+        override fun onAdIncident(incidentInfo: AdIncidentInfo?) {
+            Log.d(
+                "LOG",
+                "AppHarbr - onAdIncident for: ${incidentInfo?.unitId}, reason: " + incidentInfo?.blockReasons.contentToString()
             )
         }
 
+        override fun onAdAnalyzed(analyzedInfo: AdAnalyzedInfo?) {
+            Log.d(
+                "LOG",
+                "AppHarbr - onAdAnalyzed for: ${analyzedInfo?.unitId}, result: ${analyzedInfo?.analyzedResult}"
+            )
+        }
+    }
 }

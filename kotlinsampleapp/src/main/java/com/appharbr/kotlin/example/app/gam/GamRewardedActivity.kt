@@ -21,9 +21,13 @@ import com.appharbr.sdk.engine.AdSdk
 import com.appharbr.sdk.engine.AdStateResult
 import com.appharbr.sdk.engine.AppHarbr
 import com.appharbr.sdk.engine.adformat.AdFormat
+import com.appharbr.sdk.engine.listeners.AHAnalyze
 import com.appharbr.sdk.engine.listeners.AHListener
+import com.appharbr.sdk.engine.listeners.AdAnalyzedInfo
+import com.appharbr.sdk.engine.listeners.AdIncidentInfo
 import com.appharbr.sdk.engine.mediators.gam.rewarded.AHGamRewardedAd
 import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.rewarded.RewardItem
 import com.google.android.gms.ads.rewarded.RewardedAd
@@ -101,6 +105,26 @@ class GamRewardedActivity : ComponentActivity() {
         }
 
     //      **** (3) ****
+    // Add full screen callbacks for the add
+    private fun setFullScreenCallBack() {
+        ahGamRewardedAd.gamRewardedAd?.fullScreenContentCallback =
+            object : FullScreenContentCallback() {
+                override fun onAdShowedFullScreenContent() {
+                    ahGamRewardedAd.setRewardedAd(null)
+                }
+
+                override fun onAdDismissedFullScreenContent() {
+                    Log.d(
+                        "LOG",
+                        "**************************** AppHarbr Rewarded Add Dismissed ****************************"
+                    )
+
+                    // You may load new add
+                }
+            }
+    }
+
+    //      **** (4) ****
     //Check was rewarded Ad blocked or not
     private fun showAd() {
         ahGamRewardedAd.gamRewardedAd?.let {
@@ -126,14 +150,31 @@ class GamRewardedActivity : ComponentActivity() {
         } ?: Log.d("TAG", "The GAM Rewarded wasn't loaded yet.")
     }
 
-    private var ahListener =
-        AHListener { view: Any?, unitId: String?, adFormat: AdFormat?, reasons: Array<AdBlockReason?>? ->
+    var ahListener = object : AHAnalyze {
+        override fun onAdBlocked(incidentInfo: AdIncidentInfo?) {
             Log.d(
                 "LOG",
-                "AppHarbr - onAdBlocked for: $unitId, reason: " + Arrays.toString(
-                    reasons
-                )
+                "AppHarbr - onAdBlocked for: ${incidentInfo?.unitId}, reason: " + incidentInfo?.blockReasons.contentToString()
+            )
+
+            if (incidentInfo?.shouldLoadNewAd == true) {
+                // If add was blocked before being displayed, load new add
+                requestAd()
+            }
+        }
+
+        override fun onAdIncident(incidentInfo: AdIncidentInfo?) {
+            Log.d(
+                "LOG",
+                "AppHarbr - onAdIncident for: ${incidentInfo?.unitId}, reason: " + incidentInfo?.blockReasons.contentToString()
             )
         }
 
+        override fun onAdAnalyzed(analyzedInfo: AdAnalyzedInfo?) {
+            Log.d(
+                "LOG",
+                "AppHarbr - onAdAnalyzed for: ${analyzedInfo?.unitId}, result: ${analyzedInfo?.analyzedResult}"
+            )
+        }
+    }
 }
