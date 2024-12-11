@@ -16,19 +16,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.appharbr.kotlin.example.app.R
 import com.appharbr.kotlin.example.app.ui.theme.AppHarbrExampleAppTheme
-import com.appharbr.sdk.engine.AdBlockReason
 import com.appharbr.sdk.engine.AdSdk
 import com.appharbr.sdk.engine.AdStateResult
 import com.appharbr.sdk.engine.AppHarbr
-import com.appharbr.sdk.engine.adformat.AdFormat
-import com.appharbr.sdk.engine.listeners.AHListener
+import com.appharbr.sdk.engine.listeners.AHAnalyze
+import com.appharbr.sdk.engine.listeners.AdAnalyzedInfo
+import com.appharbr.sdk.engine.listeners.AdIncidentInfo
 import com.applovin.mediation.MaxAd
 import com.applovin.mediation.MaxError
 import com.applovin.mediation.MaxReward
 import com.applovin.mediation.MaxRewardedAdListener
 import com.applovin.mediation.ads.MaxRewardedAd
 import com.applovin.sdk.AppLovinSdk
-import java.util.*
 
 class MaxRewardedActivity : ComponentActivity() {
 
@@ -96,8 +95,8 @@ class MaxRewardedActivity : ComponentActivity() {
         private fun checkAd() {
             //	**** (4) ****
             //Check whether Ad was blocked or not
-            val rewardedState = AppHarbr.getRewardedState(maxRewardedAd)
-            if (rewardedState != AdStateResult.BLOCKED) {
+            val rewardedResult = AppHarbr.getRewardedResult(maxRewardedAd)
+            if (rewardedResult.adStateResult != AdStateResult.BLOCKED) {
                 Log.d(
                     "LOG",
                     "**************************** AppHarbr Permit to Display Max Rewarded ****************************"
@@ -146,14 +145,31 @@ class MaxRewardedActivity : ComponentActivity() {
         }
     }
 
-    var ahListener =
-        AHListener { view: Any?, unitId: String?, adFormat: AdFormat?, reasons: Array<AdBlockReason?>? ->
+    var ahListener = object : AHAnalyze {
+        override fun onAdBlocked(incidentInfo: AdIncidentInfo?) {
             Log.d(
                 "LOG",
-                "AppHarbr - onAdBlocked for: $unitId, reason: " + Arrays.toString(
-                    reasons
-                )
+                "AppHarbr - onAdBlocked for: ${incidentInfo?.unitId}, reason: " + incidentInfo?.blockReasons.contentToString()
+            )
+
+            if (incidentInfo?.shouldLoadNewAd == true) {
+                maxRewardedAd.loadAd()
+                // If add was blocked before being displayed, load new add
+            }
+        }
+
+        override fun onAdIncident(incidentInfo: AdIncidentInfo?) {
+            Log.d(
+                "LOG",
+                "AppHarbr - onAdIncident for: ${incidentInfo?.unitId}, reason: " + incidentInfo?.blockReasons.contentToString()
             )
         }
 
+        override fun onAdAnalyzed(analyzedInfo: AdAnalyzedInfo?) {
+            Log.d(
+                "LOG",
+                "AppHarbr - onAdAnalyzed for: ${analyzedInfo?.unitId}, result: ${analyzedInfo?.analyzedResult}"
+            )
+        }
+    }
 }
