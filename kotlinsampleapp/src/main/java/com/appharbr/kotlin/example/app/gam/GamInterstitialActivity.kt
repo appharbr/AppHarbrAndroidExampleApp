@@ -114,7 +114,7 @@ class GamInterstitialActivity : ComponentActivity() {
                 override fun onAdDismissedFullScreenContent() {
                     Log.d(
                         "LOG",
-                        "**************************** AppHarbr Interstitial Add Dismissed ****************************"
+                        "**************************** Interstitial Add Dismissed ****************************"
                     )
 
                     // You may load new add
@@ -152,14 +152,13 @@ class GamInterstitialActivity : ComponentActivity() {
 
             if (incidentInfo?.shouldLoadNewAd == true) {
                 // If add was blocked before being displayed, load new add
-                requestAd()
             }
         }
 
         override fun onAdIncident(incidentInfo: AdIncidentInfo?) {
             Log.d(
                 "LOG",
-                "AppHarbr - onAdIncident for: ${incidentInfo?.unitId}, reason: " + incidentInfo?.blockReasons.contentToString()
+                "AppHarbr - onAdIncident for: ${incidentInfo?.unitId}, reason: " + incidentInfo?.reportReasons.contentToString()
             )
         }
 

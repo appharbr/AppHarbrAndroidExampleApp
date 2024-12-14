@@ -157,20 +157,14 @@ class PrebidGamBannerActivity : ComponentActivity() {
                 override fun getPrebidObject(adFormat: AdFormat, mediationAdUnitId: String) =
                     prebidBannerAdUnit
 
+                override fun getAmazonObject(adFormat: AdFormat, mediationAdUnitId: String) = null
+
                 override fun getNimbusObject(adFormat: AdFormat, mediationAdUnitId: String) = null
             },
             lifecycle,
+            null,
             null
-        ) { view, unitId, adFormat, reasons ->
-            Log.w(
-                "LOG",
-                "AppHarbr Blocked Banner: view[${view?.javaClass?.simpleName}] unitId[$unitId] adFormat[$adFormat] reasons[${
-                    reasons.joinToString(
-                        separator = ","
-                    )
-                }]"
-            )
-        }
+        )
 
     }
 

@@ -114,7 +114,7 @@ class GamRewardedActivity : ComponentActivity() {
                 override fun onAdDismissedFullScreenContent() {
                     Log.d(
                         "LOG",
-                        "**************************** AppHarbr Rewarded Add Dismissed ****************************"
+                        "**************************** Rewarded Add Dismissed ****************************"
                     )
 
                     // You may load new add
@@ -157,14 +157,13 @@ class GamRewardedActivity : ComponentActivity() {
 
             if (incidentInfo?.shouldLoadNewAd == true) {
                 // If add was blocked before being displayed, load new add
-                requestAd()
             }
         }
 
         override fun onAdIncident(incidentInfo: AdIncidentInfo?) {
             Log.d(
                 "LOG",
-                "AppHarbr - onAdIncident for: ${incidentInfo?.unitId}, reason: " + incidentInfo?.blockReasons.contentToString()
+                "AppHarbr - onAdIncident for: ${incidentInfo?.unitId}, reason: " + incidentInfo?.reportReasons.contentToString()
             )
         }
 

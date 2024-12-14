@@ -128,7 +128,7 @@ class AdmobBannerActivity : ComponentActivity() {
         override fun onAdIncident(incidentInfo: AdIncidentInfo?) {
             Log.d(
                 "LOG",
-                "AppHarbr - onAdIncident for: ${incidentInfo?.unitId}, reason: " + incidentInfo?.blockReasons.contentToString()
+                "AppHarbr - onAdIncident for: ${incidentInfo?.unitId}, reason: " + incidentInfo?.reportReasons.contentToString()
             )
         }
 

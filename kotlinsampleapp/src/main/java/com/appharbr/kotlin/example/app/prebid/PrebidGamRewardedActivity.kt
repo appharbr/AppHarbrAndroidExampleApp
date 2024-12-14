@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.appharbr.kotlin.example.app.R
 import com.appharbr.kotlin.example.app.ui.theme.AppHarbrExampleAppTheme
-import com.appharbr.sdk.engine.AdBlockReason
 import com.appharbr.sdk.engine.AdSdk
 import com.appharbr.sdk.engine.AdStateResult
 import com.appharbr.sdk.engine.AppHarbr
@@ -24,6 +23,8 @@ import com.appharbr.sdk.engine.adformat.AdFormat
 import com.appharbr.sdk.engine.adnetworks.inappbidding.InAppBidding
 import com.appharbr.sdk.engine.diagnostic.AHAdAnalyzedResult
 import com.appharbr.sdk.engine.listeners.AHAnalyze
+import com.appharbr.sdk.engine.listeners.AdAnalyzedInfo
+import com.appharbr.sdk.engine.listeners.AdIncidentInfo
 import com.appharbr.sdk.engine.mediators.gam.rewarded.AHGamRewardedAd
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.admanager.AdManagerAdRequest
@@ -118,6 +119,8 @@ class PrebidGamRewardedActivity : ComponentActivity() {
                     prebidRewardedAdUnit
 
                 override fun getNimbusObject(adFormat: AdFormat, mediationAdUnitId: String) = null
+
+                override fun getAmazonObject(adFormat: AdFormat, mediationAdUnitId: String) = null
             },
             /**
              * AppHarbr needs regular Rewarded Ad load callback
@@ -148,18 +151,13 @@ class PrebidGamRewardedActivity : ComponentActivity() {
      */
     val ahListener: AHAnalyze = object : AHAnalyze {
 
-        override fun onAdAnalyzed(
-            view: Any?,
-            adFormat: AdFormat,
-            adUnitId: String,
-            result: AHAdAnalyzedResult
-        ) {
+        override fun onAdAnalyzed(analyzedInfo: AdAnalyzedInfo?) {
             Log.i(
                 "LOG",
-                "######## AppHarbr onAdAnalyzed Ad: Ad[${view?.javaClass?.simpleName}] unitId[$adUnitId] adFormat[$adFormat] result[$result]"
+                "######## AppHarbr onAdAnalyzed Ad: Ad[${analyzedInfo?.view?.javaClass?.simpleName}] unitId[${analyzedInfo?.unitId}] adFormat[${analyzedInfo?.adFormat}] result[${analyzedInfo?.analyzedResult}]"
             )
 
-            when (result) {
+            when (analyzedInfo?.analyzedResult) {
                 AHAdAnalyzedResult.WILL_ANALYZE_ON_DISPLAY -> run {
                     // This means that AppHarbr will scan Rewarded Ad when it will be shown.
                     // This displayed Ad will be closed Automatically if AppHarbr blocks this Ad
@@ -180,43 +178,26 @@ class PrebidGamRewardedActivity : ComponentActivity() {
                     }
                 }
 
-                AHAdAnalyzedResult.NOT_ANALYZED_UNSUPPORTED_AD_NETWORK_OR_VERSION_MISMATCH -> run {
-                    Log.e("LOG", result.description)
+                else -> {
+                    Log.e("LOG", analyzedInfo?.analyzedResult?.description.orEmpty())
                 }
             }
         }
 
-        override fun onAdBlocked(
-            view: Any?,
-            unitId: String?,
-            adFormat: AdFormat,
-            reasons: Array<AdBlockReason>
-        ) {
+        override fun onAdBlocked(incidentInfo: AdIncidentInfo?) {
             Log.w(
                 "LOG",
-                "######## AppHarbr Blocked Ad: Ad[${view?.javaClass?.simpleName}] unitId[$unitId] adFormat[$adFormat] reasons[${
-                    reasons.joinToString(
-                        separator = ","
-                    )
+                "######## AppHarbr Blocked Ad: Ad[${incidentInfo?.view?.javaClass?.simpleName}] unitId[${incidentInfo?.unitId}] adFormat[${incidentInfo?.adFormat}] reasons[${
+                    incidentInfo?.blockReasons?.joinToString(separator = ",")
                 }]\nPlease reload Ad"
             )
         }
 
-        override fun onAdIncident(
-            view: Any?,
-            unitId: String?,
-            adNetwork: AdSdk?,
-            creativeId: String?,
-            adFormat: AdFormat,
-            blockReasons: Array<out AdBlockReason>,
-            reportReasons: Array<out AdBlockReason>
-        ) {
+        override fun onAdIncident(incidentInfo: AdIncidentInfo?) {
             Log.i(
                 "LOG",
-                "######## AppHarbr onAdIncident: Ad[${view?.javaClass?.simpleName}] unitId[$unitId] adFormat[$adFormat] reasons[${
-                    blockReasons.joinToString(
-                        separator = ","
-                    )
+                "######## AppHarbr onAdIncident: Ad[${incidentInfo?.view?.javaClass?.simpleName}] unitId[${incidentInfo?.unitId}] adFormat[${incidentInfo?.adFormat}] reasons[${
+                    incidentInfo?.reportReasons?.joinToString(separator = ",")
                 }]"
             )
         }
