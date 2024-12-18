@@ -14,6 +14,7 @@
     <string name="max_interstitial_screen">Max Interstitial Sample</string>
     <string name="max_rewarded_screen">Max Rewarded Sample</string>
     <string name="max_native_screen">Max Native Sample</string>
+    <string name="levelplay_interstitial_screen">LevelPlay Interstitial Screen</string>
 
     <!-- TODO: This is an ad unit ID for a test ad. Replace with your own banner ad unit id. -->
     <string name="gam_banner_ad_unit_id">/6499/example/banner</string>
@@ -25,5 +26,6 @@
     <string name="admob_interstitial_ad_unit_id">ca-app-pub-3940256099942544/1033173712</string>
     <string name="admob_rewarded_ad_unit_id">	ca-app-pub-3940256099942544/5224354917</string>
     <string name="admob_native_ad_unit_id">ca-app-pub-3940256099942544/2247696110</string>
+    <string name="title_activity_level_play_interstitial">LevelPlayInterstitialActivity</string>
 
 </resources>

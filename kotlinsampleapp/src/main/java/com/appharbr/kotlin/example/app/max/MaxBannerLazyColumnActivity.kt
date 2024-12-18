@@ -4,7 +4,12 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -15,16 +20,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.appharbr.kotlin.example.app.ui.theme.AppHarbrExampleAppTheme
-import com.appharbr.sdk.engine.AdBlockReason
 import com.appharbr.sdk.engine.AdSdk
 import com.appharbr.sdk.engine.AppHarbr
-import com.appharbr.sdk.engine.adformat.AdFormat
-import com.appharbr.sdk.engine.listeners.AHListener
 import com.applovin.mediation.MaxAd
 import com.applovin.mediation.MaxAdViewAdListener
 import com.applovin.mediation.MaxError
 import com.applovin.mediation.ads.MaxAdView
-import java.util.*
 
 class MaxBannerLazyColumnActivity : ComponentActivity() {
 
@@ -83,7 +84,7 @@ class MaxBannerLazyColumnActivity : ComponentActivity() {
                         AdSdk.MAX,
                         this,
                         lifecycle,
-                        ahListener
+                        null
                     )
 
                     //      **** (3) ****
@@ -128,14 +129,14 @@ class MaxBannerLazyColumnActivity : ComponentActivity() {
         }
     }
 
-    private val ahListener =
-        AHListener { view: Any?, unitId: String?, adFormat: AdFormat?, reasons: Array<AdBlockReason?>? ->
-            Log.d(
-                "LOG",
-                "AppHarbr - onAdBlocked for: $unitId, reason: " + Arrays.toString(
-                    reasons
-                )
-            )
-        }
+//    private val ahListener =
+//        AHListener { view: Any?, unitId: String?, adFormat: AdFormat?, reasons: Array<AdBlockReason?>? ->
+//            Log.d(
+//                "LOG",
+//                "AppHarbr - onAdBlocked for: $unitId, reason: " + Arrays.toString(
+//                    reasons
+//                )
+//            )
+//        }
 
 }

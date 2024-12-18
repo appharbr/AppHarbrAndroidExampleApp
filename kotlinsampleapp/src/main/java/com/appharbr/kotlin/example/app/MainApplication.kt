@@ -14,7 +14,7 @@ import org.prebid.mobile.api.data.InitializationStatus
 
 class MainApplication : Application() {
 
-    private val API_KEY = "api_key"
+    private val API_KEY = "YOUR_API_KEY"
 
     override fun onCreate() {
         super.onCreate()
@@ -66,6 +66,8 @@ class MainApplication : Application() {
         val ahSdkNormalConfiguration: AHSdkConfiguration = AHSdkConfiguration
             .Builder(API_KEY)
             .withInterstitialAdTimeLimit(10)
+            .withRewardAdTimeLimit(20)
+            .withDebugConfig(AHSdkDebug(true, false))
             .withMuteAd(true)
             .build()
 

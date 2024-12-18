@@ -18,7 +18,7 @@ import java.util.Set;
 
 public class MainApplication extends Application {
 
-    private final String API_KEY = "api_key";
+    private final String API_KEY = "YOUR_API_KEY";
 
     @Override
     protected void attachBaseContext(Context base) {

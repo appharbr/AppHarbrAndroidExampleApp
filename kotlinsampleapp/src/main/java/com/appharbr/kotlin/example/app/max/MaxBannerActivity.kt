@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
 import androidx.compose.ui.viewinterop.AndroidView
 import com.appharbr.kotlin.example.app.R
 import com.appharbr.kotlin.example.app.ui.theme.AppHarbrExampleAppTheme
@@ -30,11 +31,17 @@ import com.applovin.mediation.MaxAd
 import com.applovin.mediation.MaxAdViewAdListener
 import com.applovin.mediation.MaxError
 import com.applovin.mediation.ads.MaxAdView
+import com.applovin.sdk.AppLovinMediationProvider
+import com.applovin.sdk.AppLovinSdk
+import com.applovin.sdk.AppLovinSdkInitializationConfiguration
 
 class MaxBannerActivity : ComponentActivity() {
 
+    private lateinit var maxAdView: MaxAdView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        maxAdView = MaxAdView("YOUR_UNIT_ID", this)
 
         setContent {
             AppHarbrExampleAppTheme {
@@ -58,35 +65,57 @@ class MaxBannerActivity : ComponentActivity() {
                 }
             }
         }
+        initializeApplovinSDK()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+
+        maxAdView.destroy()
+    }
+
+    //	**** (2) ****
+    // Initialize Applovin SDK
+    private fun initializeApplovinSDK(){
+        val initConfig = AppLovinSdkInitializationConfiguration.builder(
+            "YOUR_API_KEY",
+            this
+        ).setMediationProvider(AppLovinMediationProvider.MAX).build()
+
+        AppLovinSdk.getInstance(this).initialize(initConfig) { sdkConfig ->
+            Log.d("KotlinSample", "MAX mediation initialized successfully -> [${sdkConfig}]")
+            loadBannerAd()
+        }
+    }
+
+    private fun loadBannerAd() {
+        with(maxAdView) {
+            setListener(mAdListener)
+
+            //      **** (3) ****
+            //Add Max's banner View instance for Monitoring
+            AppHarbr.addBannerView(
+                AdSdk.MAX,
+                this,
+                lifecycle,
+                ahListener
+            )
+
+            //      **** (4) ****
+            //      Request for the Ads
+            loadAd()
+        }
+    }
+
+    //	**** (1) ****
+    // Add banner view to the UI
     @Composable
     private fun AddBanner() {
         //We need AndroidView to add banner in Compose UI
         AndroidView(modifier = Modifier
             .fillMaxWidth()
             .height(50.dp),
-            factory = { context ->
-
-                //      **** (1) ****
-                //      Add Banner View in compose with all necessary params, like unit id and ad listener
-                MaxAdView("YOUR_AD_UNIT_ID", context).apply {
-                    setListener(mAdListener)
-
-                    //      **** (2) ****
-                    //Add Max's banner View instance for Monitoring
-                    AppHarbr.addBannerView(
-                        AdSdk.MAX,
-                        this,
-                        lifecycle,
-                        ahListener
-                    )
-
-                    //      **** (3) ****
-                    //      Request for the Ads
-                    loadAd()
-                }
-            }
+            factory = { maxAdView }
         )
     }
 
@@ -135,7 +164,7 @@ class MaxBannerActivity : ComponentActivity() {
         override fun onAdIncident(incidentInfo: AdIncidentInfo?) {
             Log.d(
                 "LOG",
-                "AppHarbr - onAdIncident for: ${incidentInfo?.unitId}, reason: " + incidentInfo?.blockReasons.contentToString()
+                "AppHarbr - onAdIncident for: ${incidentInfo?.unitId}, reason: " + incidentInfo?.reportReasons.contentToString()
             )
         }
 

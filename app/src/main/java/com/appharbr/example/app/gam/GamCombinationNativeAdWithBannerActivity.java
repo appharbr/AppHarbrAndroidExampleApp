@@ -1,23 +1,18 @@
 package com.appharbr.example.app.gam;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
-
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.appharbr.example.app.R;
 import com.appharbr.sdk.engine.AdResult;
 import com.appharbr.sdk.engine.AdSdk;
 import com.appharbr.sdk.engine.AdStateResult;
 import com.appharbr.sdk.engine.AppHarbr;
-import com.appharbr.sdk.engine.listeners.AHListener;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdLoader;
 import com.google.android.gms.ads.AdSize;
@@ -28,8 +23,6 @@ import com.google.android.gms.ads.admanager.AdManagerAdView;
 import com.google.android.gms.ads.formats.AdManagerAdViewOptions;
 import com.google.android.gms.ads.nativead.NativeAd;
 import com.google.android.gms.ads.nativead.NativeAdView;
-
-import java.util.Arrays;
 import java.util.Locale;
 
 public class GamCombinationNativeAdWithBannerActivity extends AppCompatActivity {
@@ -84,7 +77,7 @@ public class GamCombinationNativeAdWithBannerActivity extends AppCompatActivity 
                     currentBannerAdView = adView;
 
                     // ####### Publisher got a new Banner - Using AppHarbr to monitor it ########
-                    AppHarbr.addBannerViewFromAdLoader(AdSdk.GAM, adView, getLifecycle(), ahListener);
+                    AppHarbr.addBannerViewFromAdLoader(AdSdk.GAM, adView, getLifecycle(), null);
 
                     FrameLayout frameLayout =
                             findViewById(R.id.fl_adplaceholder);
@@ -176,8 +169,8 @@ public class GamCombinationNativeAdWithBannerActivity extends AppCompatActivity 
     }
 
 
-    private final AHListener ahListener = (view, unitId, adFormat, reasons)
-            -> Log.d("LOG", "AppHarbr - onAdBlocked for: " + unitId + ", reason: " + Arrays.toString(reasons));
+//    private final AHListener ahListener = (view, unitId, adFormat, reasons)
+//            -> Log.d("LOG", "AppHarbr - onAdBlocked for: " + unitId + ", reason: " + Arrays.toString(reasons));
 
     private void releaseBannerResources() {
         if (currentBannerAdView != null) {

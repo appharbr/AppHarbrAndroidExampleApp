@@ -27,7 +27,9 @@ import com.applovin.mediation.MaxError
 import com.applovin.mediation.MaxReward
 import com.applovin.mediation.MaxRewardedAdListener
 import com.applovin.mediation.ads.MaxRewardedAd
+import com.applovin.sdk.AppLovinMediationProvider
 import com.applovin.sdk.AppLovinSdk
+import com.applovin.sdk.AppLovinSdkInitializationConfiguration
 
 class MaxRewardedActivity : ComponentActivity() {
 
@@ -36,7 +38,7 @@ class MaxRewardedActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        createAndLoadRewardedAd()
+        initializeApplovinSDK()
 
         setContent {
             AppHarbrExampleAppTheme {
@@ -59,16 +61,26 @@ class MaxRewardedActivity : ComponentActivity() {
         }
     }
 
+    //	**** (1) ****
+    // Initialize Applovin SDK
+    private fun initializeApplovinSDK(){
+        val initConfig = AppLovinSdkInitializationConfiguration.builder(
+            "YOUR_API_KEY",
+            this
+        ).setMediationProvider(AppLovinMediationProvider.MAX).build()
+
+        AppLovinSdk.getInstance(this).initialize(initConfig) { sdkConfig ->
+            Log.d("KotlinSample", "MAX mediation initialized successfully -> [${sdkConfig}]")
+            createAndLoadRewardedAd()
+        }
+    }
+
     private fun createAndLoadRewardedAd() {
-        //Initialize AppLovinSdk
-        AppLovinSdk.getInstance(this).mediationProvider = "max"
-        AppLovinSdk.initializeSdk(this)
-
-        //	**** (1) ****
-        //Initialize max Rewarded Ad
-        maxRewardedAd = MaxRewardedAd.getInstance("YOUR_AD_UNIT_ID", this)
-
         //	**** (2) ****
+        //Initialize max Rewarded Ad
+        maxRewardedAd = MaxRewardedAd.getInstance("YOUR_UNIT_ID", this)
+
+        //	**** (3) ****
         // The publisher will initiate once the listener wrapper and will use it when load the Max rewarded ad.
         val ahWrapperListener = AppHarbr.addRewardedAd(
             AdSdk.MAX,
@@ -78,7 +90,7 @@ class MaxRewardedActivity : ComponentActivity() {
             ahListener
         )
 
-        //	**** (3) ****
+        //	**** (4) ****
         //Set ahWrapperListener and load Ad
         maxRewardedAd.setListener(ahWrapperListener)
         maxRewardedAd.loadAd()
@@ -93,7 +105,7 @@ class MaxRewardedActivity : ComponentActivity() {
         }
 
         private fun checkAd() {
-            //	**** (4) ****
+            //	**** (5) ****
             //Check whether Ad was blocked or not
             val rewardedResult = AppHarbr.getRewardedResult(maxRewardedAd)
             if (rewardedResult.adStateResult != AdStateResult.BLOCKED) {
@@ -101,7 +113,7 @@ class MaxRewardedActivity : ComponentActivity() {
                     "LOG",
                     "**************************** AppHarbr Permit to Display Max Rewarded ****************************"
                 )
-                maxRewardedAd.showAd()
+                maxRewardedAd.showAd(this@MaxRewardedActivity)
             } else {
                 Log.d(
                     "LOG",
@@ -117,7 +129,6 @@ class MaxRewardedActivity : ComponentActivity() {
 
         override fun onAdHidden(ad: MaxAd) {
             Log.d("LOG", "Max - onAdHidden")
-            finish()
         }
 
         override fun onAdClicked(ad: MaxAd) {
@@ -130,14 +141,6 @@ class MaxRewardedActivity : ComponentActivity() {
 
         override fun onAdDisplayFailed(ad: MaxAd, error: MaxError) {
             Log.d("LOG", "Max - onAdDisplayFailed")
-        }
-
-        override fun onRewardedVideoStarted(ad: MaxAd) {
-            Log.d("LOG", "Max - onRewardedVideoStarted")
-        }
-
-        override fun onRewardedVideoCompleted(ad: MaxAd) {
-            Log.d("LOG", "Max - onRewardedVideoCompleted")
         }
 
         override fun onUserRewarded(ad: MaxAd, reward: MaxReward) {
@@ -153,7 +156,6 @@ class MaxRewardedActivity : ComponentActivity() {
             )
 
             if (incidentInfo?.shouldLoadNewAd == true) {
-                maxRewardedAd.loadAd()
                 // If add was blocked before being displayed, load new add
             }
         }
@@ -161,7 +163,7 @@ class MaxRewardedActivity : ComponentActivity() {
         override fun onAdIncident(incidentInfo: AdIncidentInfo?) {
             Log.d(
                 "LOG",
-                "AppHarbr - onAdIncident for: ${incidentInfo?.unitId}, reason: " + incidentInfo?.blockReasons.contentToString()
+                "AppHarbr - onAdIncident for: ${incidentInfo?.unitId}, reason: " + incidentInfo?.reportReasons.contentToString()
             )
         }
 

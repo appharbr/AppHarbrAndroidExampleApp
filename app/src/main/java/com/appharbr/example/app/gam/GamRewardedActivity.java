@@ -3,21 +3,23 @@ package com.appharbr.example.app.gam;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
-
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-
+import com.appharbr.sdk.engine.AdResult;
 import com.appharbr.sdk.engine.AdSdk;
 import com.appharbr.sdk.engine.AdStateResult;
 import com.appharbr.sdk.engine.AppHarbr;
-import com.appharbr.sdk.engine.listeners.AHListener;
+import com.appharbr.sdk.engine.listeners.AHAnalyze;
+import com.appharbr.sdk.engine.listeners.AdAnalyzedInfo;
+import com.appharbr.sdk.engine.listeners.AdIncidentInfo;
 import com.appharbr.sdk.engine.mediators.gam.rewarded.AHGamRewardedAd;
 import com.appharbr.example.app.R;
 import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.FullScreenContentCallback;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
-
 import java.util.Arrays;
 
 public class GamRewardedActivity extends AppCompatActivity {
@@ -58,21 +60,47 @@ public class GamRewardedActivity extends AppCompatActivity {
             if (isDestroyed()) {
                 return;
             }
-            if (ahGamRewardedAd.getGamRewardedAd() != null) {
-                final AdStateResult rewardedState = AppHarbr.getRewardedState(ahGamRewardedAd);
-                if (rewardedState != AdStateResult.BLOCKED) {
-                    Log.d("LOG", "**************************** AppHarbr Permit to Display GAM Rewarded ****************************");
-                    ahGamRewardedAd.getGamRewardedAd().show(GamRewardedActivity.this,
-                            rewardItem -> Log.d("TAG",  "onUserEarnedReward: " + rewardItem));
-                }
-                else {
-                    Log.d("LOG", "**************************** AppHarbr Blocked GAM Rewarded ****************************");
-                    // You may call to reload Rewarded
-                }
-            } else {
-                Log.d("TAG", "The GAM Rewarded wasn't loaded yet.");
-            }
+
+            setFullScreenCallBack();
+            showAd();
         });
+    }
+
+    private void showAd() {
+        if (ahGamRewardedAd.getGamRewardedAd() != null) {
+            final AdResult rewardedResult = AppHarbr.getRewardedResult(ahGamRewardedAd);
+            if (rewardedResult.adStateResult != AdStateResult.BLOCKED) {
+                Log.d("LOG", "**************************** AppHarbr Permit to Display GAM Rewarded ****************************");
+                ahGamRewardedAd.getGamRewardedAd().show(GamRewardedActivity.this,
+                        rewardItem -> Log.d("TAG", "onUserEarnedReward: " + rewardItem));
+            } else {
+                Log.d("LOG", "**************************** AppHarbr Blocked GAM Rewarded ****************************");
+                // You may call to reload Rewarded
+            }
+        } else {
+            Log.d("TAG", "The GAM Rewarded wasn't loaded yet.");
+        }
+    }
+
+    private void setFullScreenCallBack() {
+        if (ahGamRewardedAd.getGamRewardedAd() != null) {
+            ahGamRewardedAd.getGamRewardedAd().setFullScreenContentCallback(new FullScreenContentCallback() {
+                @Override
+                public void onAdShowedFullScreenContent() {
+                    ahGamRewardedAd.setRewardedAd(null);
+                }
+
+                @Override
+                public void onAdDismissedFullScreenContent() {
+                    Log.d(
+                            "LOG",
+                            "**************************** Rewarded Add Dismissed ****************************"
+                    );
+
+                    // You may load new add
+                }
+            });
+        }
     }
 
     @Override
@@ -84,14 +112,43 @@ public class GamRewardedActivity extends AppCompatActivity {
         AppHarbr.removeRewardedAd(ahGamRewardedAd);
     }
 
-    private final AHListener ahListener = (view, unitId, adFormat, reasons)
-            -> Log.d("LOG", "AppHarbr - onAdBlocked for: " + unitId + ", reason: " + Arrays.toString(reasons));
+    private final AHAnalyze ahListener = new AHAnalyze() {
+        @Override
+        public void onAdBlocked(@Nullable AdIncidentInfo adIncidentInfo) {
+            Log.d("LOG", "AppHarbr - onAdBlocked for: "
+                    + (adIncidentInfo != null && adIncidentInfo.getUnitId() != null ? adIncidentInfo.getUnitId() : "null")
+                    + ", reason: "
+                    + (adIncidentInfo != null && adIncidentInfo.getBlockReasons() != null ? Arrays.toString(adIncidentInfo.getBlockReasons()) : "null"));
+
+            if (adIncidentInfo != null && adIncidentInfo.getShouldLoadNewAd()) {
+                // If add was blocked before being displayed, load new add
+            }
+        }
+
+        @Override
+        public void onAdIncident(@Nullable AdIncidentInfo adIncidentInfo) {
+            Log.d("LOG", "AppHarbr - onAdIncident for: "
+                    + (adIncidentInfo != null && adIncidentInfo.getUnitId() != null ? adIncidentInfo.getUnitId() : "null")
+                    + ", reason: "
+                    + (adIncidentInfo != null && adIncidentInfo.getReportReasons() != null ? Arrays.toString(adIncidentInfo.getReportReasons()) : "null"));
+        }
+
+        @Override
+        public void onAdAnalyzed(@Nullable AdAnalyzedInfo adAnalyzedInfo) {
+            Log.d("LOG", "AppHarbr - onAdAnalyzed for: "
+                    + (adAnalyzedInfo != null && adAnalyzedInfo.getUnitId() != null ? adAnalyzedInfo.getUnitId() : "null")
+                    + ", result: "
+                    + (adAnalyzedInfo != null && adAnalyzedInfo.getAnalyzedResult() != null ? adAnalyzedInfo.getAnalyzedResult() : "null"));
+
+        }
+    };
 
     private final RewardedAdLoadCallback adManagerRewardedAdLoadCallback =
             new RewardedAdLoadCallback() {
                 @Override
                 public void onAdLoaded(@NonNull RewardedAd rewardedAd) {
                     Log.d("LOG", "onAdLoaded");
+                    btnDisplay.setEnabled(true);
                     super.onAdLoaded(rewardedAd);
                 }
 

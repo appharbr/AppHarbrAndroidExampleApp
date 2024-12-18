@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -17,57 +18,73 @@ import com.applovin.mediation.MaxError;
 import com.applovin.mediation.nativeAds.MaxNativeAdListener;
 import com.applovin.mediation.nativeAds.MaxNativeAdLoader;
 import com.applovin.mediation.nativeAds.MaxNativeAdView;
+import com.applovin.sdk.AppLovinMediationProvider;
 import com.applovin.sdk.AppLovinSdk;
+import com.applovin.sdk.AppLovinSdkInitializationConfiguration;
 
 public class MaxNativeAdActivity extends AppCompatActivity {
 
+    private ActivityMaxNativeAdBinding binding;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-	super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState);
 
-	ActivityMaxNativeAdBinding binding = ActivityMaxNativeAdBinding.inflate(getLayoutInflater());
-	setContentView(binding.getRoot());
+        binding = ActivityMaxNativeAdBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-	//Initialize AppLovinSdk
-	AppLovinSdk.getInstance(this).setMediationProvider("max");
-	AppLovinSdk.initializeSdk(this);
+        //	**** (1) ****
+        //Initialize AppLovinSdk
+        AppLovinSdkInitializationConfiguration initConfig = AppLovinSdkInitializationConfiguration.builder(
+                "YOUR_API_KEY",
+                this
+        ).setMediationProvider(AppLovinMediationProvider.MAX).build();
 
-	//	**** (1) ****
-	//Create Max native ad loader
-	final MaxNativeAdLoader maxNativeAdLoader = new MaxNativeAdLoader("YOUR_AD_UNIT_ID", this);
+        AppLovinSdk.getInstance(this).initialize(initConfig, (sdkConfig) -> {
+            Log.d("KotlinSample", "MAX mediation initialized successfully -> [" + sdkConfig + ']');
+            loadBannerAd();
+        });
+    }
 
-	//	**** (2) ****
-	//Set listener to get results
-	maxNativeAdLoader.setNativeAdListener(new MaxNativeAdListener() {
+    private void loadBannerAd() {
+        //	**** (2) ****
+        //Create Max native ad loader
+        final MaxNativeAdLoader maxNativeAdLoader = new MaxNativeAdLoader("YOUR_AD_UNIT_ID", this);
 
-	    @Override
-	    public void onNativeAdLoaded(@Nullable MaxNativeAdView maxNativeAdView, MaxAd maxAd) {
-		Log.d("LOG", "Max - onNativeAdLoaded");
+        //	**** (3) ****
+        //Set listener to get results
+        maxNativeAdLoader.setNativeAdListener(new MaxNativeAdListener() {
 
-		//hiding progressBar cause ad is already loaded
-		binding.progressBar.setVisibility(View.GONE);
+            @Override
+            public void onNativeAdLoaded(@Nullable MaxNativeAdView maxNativeAdView, @NonNull MaxAd maxAd) {
+                Log.d("LOG", "Max - onNativeAdLoaded");
 
-		//	**** (3) ****
-		//Check loaded Max native ad from AppHarbr if it needs to be blocked
-		AdResult adResult = AppHarbr.shouldBlockNativeAd(AdSdk.MAX, maxAd, "YOUR_AD_UNIT_ID");
-		if (adResult.getAdStateResult() != AdStateResult.BLOCKED) {
-		    Log.d("LOG", "**************************** AppHarbr Permit to Display Max Native Ad ****************************");
-		    binding.mainLayout.addView(maxNativeAdView);
-		} else {
-		    Log.d("LOG", "**************************** AppHarbr Blocked Max Native Ad ****************************");
-		}
-	    }
+                //hiding progressBar cause ad is already loaded
+                binding.progressBar.setVisibility(View.GONE);
 
-	    @Override
-	    public void onNativeAdLoadFailed(String s, MaxError maxError) {
-		Log.d("LOG", "Max - onNativeAdLoadFailed");
-	    }
+                //	**** (4) ****
+                //Check loaded Max native ad from AppHarbr if it needs to be blocked
+                AdResult adResult = AppHarbr.shouldBlockNativeAd(AdSdk.MAX, maxAd, "YOUR_AD_UNIT_ID");
+                if (adResult.getAdStateResult() != AdStateResult.BLOCKED) {
+                    Log.d("LOG", "**************************** AppHarbr Permit to Display Max Native Ad ****************************");
+                    binding.mainLayout.addView(maxNativeAdView);
+                } else {
+                    Log.d("LOG", "**************************** AppHarbr Blocked Max Native Ad ****************************");
+                    // ***** Publisher may reload ad *****
+                }
+            }
 
-	});
+            @Override
+            public void onNativeAdLoadFailed(@NonNull String s, @NonNull MaxError maxError) {
+                Log.d("LOG", "Max - onNativeAdLoadFailed");
+                // ***** Publisher may reload ad *****
+            }
 
-	//	**** (4) ****
-	//And finally load Max native Ad
-	maxNativeAdLoader.loadAd();
+        });
+
+        //	**** (5) ****
+        //And finally load Max native Ad
+        maxNativeAdLoader.loadAd();
     }
 
 }

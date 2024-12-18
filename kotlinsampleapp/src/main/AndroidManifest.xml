@@ -15,7 +15,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppHarbrExampleApp">
-
+        <activity
+            android:name=".level_play.LevelPlayInterstitialActivity"
+            android:exported="false"
+            android:label="@string/title_activity_level_play_interstitial"
+            android:theme="@style/Theme.AppHarbrExampleApp" />
         <activity
             android:name=".MediationsActivity"
             android:exported="true"
@@ -31,103 +35,76 @@
         <meta-data
             android:name="com.google.android.gms.ads.AD_MANAGER_APP"
             android:value="true" />
-
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-3940256099942544~3347511713" />
 
-        <meta-data
-            android:name="applovin.sdk.key"
-            android:value="YOUR_SDK_KEY_HERE" />
-
         <activity
             android:name=".gam.GamMediationActivity"
             android:exported="false" />
-
         <activity
             android:name=".gam.GamBannerActivity"
             android:exported="false" />
-
         <activity
             android:name=".gam.GamInterstitialActivity"
             android:exported="false" />
-
         <activity
             android:name=".gam.GamRewardedActivity"
             android:exported="false" />
-
         <activity
             android:name=".gam.GamNativeAdActivity"
             android:exported="false" />
-
         <activity
             android:name=".gam.GamCombinationNativeAdWithBannerActivity"
             android:exported="false" />
-
         <activity
             android:name=".admob.AdmobMediationActivity"
             android:exported="false" />
-
         <activity
             android:name=".max.MaxMediationActivity"
             android:exported="false" />
-
         <activity
             android:name=".admob.AdmobBannerActivity"
             android:exported="false" />
-
         <activity
             android:name=".admob.AdmobInterstitialActivity"
             android:exported="false" />
-
         <activity
             android:name=".admob.AdmobRewardedActivity"
             android:exported="false" />
-
         <activity
             android:name=".admob.AdmobNativeAdActivity"
             android:exported="false" />
-
         <activity
             android:name=".max.MaxBannerActivity"
             android:exported="false" />
-
         <activity
             android:name=".max.MaxInterstitialActivity"
             android:exported="false" />
-
         <activity
             android:name=".max.MaxRewardedActivity"
             android:exported="false" />
-
         <activity
             android:name=".max.MaxNativeAdActivity"
             android:exported="false" />
-
         <activity
             android:name=".max.MaxBannerLazyColumnActivity"
             android:exported="false" />
-
         <activity
             android:name=".prebid.PrebidGamBannerActivity"
             android:exported="false" />
-
         <activity
             android:name=".prebid.PrebidGamMenuActivity"
             android:exported="false" />
-
         <activity
             android:name=".prebid.PrebidGamInterstitialActivity"
             android:exported="false" />
-
         <activity
             android:name=".prebid.PrebidGamNativeAdActivity"
             android:exported="false" />
-
         <activity
             android:name=".prebid.PrebidGamRewardedActivity"
             android:exported="false" />
-
     </application>
 
 </manifest>
