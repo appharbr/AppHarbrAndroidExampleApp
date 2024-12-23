@@ -16,19 +16,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.appharbr.kotlin.example.app.R
 import com.appharbr.kotlin.example.app.ui.theme.AppHarbrExampleAppTheme
-import com.appharbr.sdk.engine.AdBlockReason
 import com.appharbr.sdk.engine.AdSdk
 import com.appharbr.sdk.engine.AdStateResult
 import com.appharbr.sdk.engine.AppHarbr
-import com.appharbr.sdk.engine.adformat.AdFormat
-import com.appharbr.sdk.engine.listeners.AHListener
+import com.appharbr.sdk.engine.listeners.AHAnalyze
+import com.appharbr.sdk.engine.listeners.AdAnalyzedInfo
+import com.appharbr.sdk.engine.listeners.AdIncidentInfo
 import com.appharbr.sdk.engine.mediators.gam.rewarded.AHGamRewardedAd
 import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.rewarded.RewardItem
 import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
-import java.util.*
 
 class GamRewardedActivity : ComponentActivity() {
 
@@ -92,6 +92,8 @@ class GamRewardedActivity : ComponentActivity() {
                 if (isDestroyed) {
                     return
                 }
+
+                setFullScreenCallBack()
                 showAd()
             }
 
@@ -101,11 +103,31 @@ class GamRewardedActivity : ComponentActivity() {
         }
 
     //      **** (3) ****
+    // Add full screen callbacks for the add
+    private fun setFullScreenCallBack() {
+        ahGamRewardedAd.gamRewardedAd?.fullScreenContentCallback =
+            object : FullScreenContentCallback() {
+                override fun onAdShowedFullScreenContent() {
+                    ahGamRewardedAd.setRewardedAd(null)
+                }
+
+                override fun onAdDismissedFullScreenContent() {
+                    Log.d(
+                        "LOG",
+                        "**************************** Rewarded Add Dismissed ****************************"
+                    )
+
+                    // You may load new add
+                }
+            }
+    }
+
+    //      **** (4) ****
     //Check was rewarded Ad blocked or not
     private fun showAd() {
         ahGamRewardedAd.gamRewardedAd?.let {
-            val rewardedState = AppHarbr.getRewardedState(ahGamRewardedAd)
-            if (rewardedState != AdStateResult.BLOCKED) {
+            val rewardedResult = AppHarbr.getRewardedResult(ahGamRewardedAd)
+            if (rewardedResult.adStateResult != AdStateResult.BLOCKED) {
                 Log.d(
                     "LOG",
                     "**************************** AppHarbr Permit to Display GAM Rewarded ****************************"
@@ -126,14 +148,30 @@ class GamRewardedActivity : ComponentActivity() {
         } ?: Log.d("TAG", "The GAM Rewarded wasn't loaded yet.")
     }
 
-    private var ahListener =
-        AHListener { view: Any?, unitId: String?, adFormat: AdFormat?, reasons: Array<AdBlockReason?>? ->
+    var ahListener = object : AHAnalyze {
+        override fun onAdBlocked(incidentInfo: AdIncidentInfo?) {
             Log.d(
                 "LOG",
-                "AppHarbr - onAdBlocked for: $unitId, reason: " + Arrays.toString(
-                    reasons
-                )
+                "AppHarbr - onAdBlocked for: ${incidentInfo?.unitId}, reason: " + incidentInfo?.blockReasons.contentToString()
+            )
+
+            if (incidentInfo?.shouldLoadNewAd == true) {
+                // If add was blocked before being displayed, load new add
+            }
+        }
+
+        override fun onAdIncident(incidentInfo: AdIncidentInfo?) {
+            Log.d(
+                "LOG",
+                "AppHarbr - onAdIncident for: ${incidentInfo?.unitId}, reason: " + incidentInfo?.reportReasons.contentToString()
             )
         }
 
+        override fun onAdAnalyzed(analyzedInfo: AdAnalyzedInfo?) {
+            Log.d(
+                "LOG",
+                "AppHarbr - onAdAnalyzed for: ${analyzedInfo?.unitId}, result: ${analyzedInfo?.analyzedResult}"
+            )
+        }
+    }
 }

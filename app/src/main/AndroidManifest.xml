@@ -6,16 +6,18 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <application
-        android:name="com.appharbr.example.app.MainApplication"
+        android:name=".MainApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.GeoEdgeExampleApp">
-
         <activity
-            android:name="com.appharbr.example.app.MediationsActivity"
+            android:name=".level_play.LevelPlayInterstitialActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MediationsActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -27,47 +29,43 @@
         <meta-data
             android:name="com.google.android.gms.ads.AD_MANAGER_APP"
             android:value="true" />
-
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713" />
-
-        <meta-data
-            android:name="applovin.sdk.key"
-            android:value="YOUR_SDK_KEY_HERE" />
-
+            android:value="ca-app-pub-3940256099942544~3347511713" /> <!-- <meta-data -->
+        <!-- android:name="applovin.sdk.key" -->
+        <!-- android:value="YOUR_SDK_KEY_HERE" /> -->
         <activity
-            android:name="com.appharbr.example.app.admob.AdMobMediationActivity"
+            android:name=".admob.AdMobMediationActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.appharbr.example.app.admob.AdMobBannerActivity"
+            android:name=".admob.AdMobBannerActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.appharbr.example.app.admob.AdMobInterstitialActivity"
+            android:name=".admob.AdMobInterstitialActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.appharbr.example.app.admob.AdMobRewardedActivity"
+            android:name=".admob.AdMobRewardedActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.appharbr.example.app.admob.AdMobNativeAdActivity"
+            android:name=".admob.AdMobNativeAdActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.appharbr.example.app.gam.GamMediationActivity"
+            android:name=".gam.GamMediationActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.appharbr.example.app.gam.GamBannerActivity"
+            android:name=".gam.GamBannerActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.appharbr.example.app.gam.GamInterstitialActivity"
+            android:name=".gam.GamInterstitialActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.appharbr.example.app.gam.GamRewardedActivity"
+            android:name=".gam.GamRewardedActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.appharbr.example.app.gam.GamNativeAdActivity"
+            android:name=".gam.GamNativeAdActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.appharbr.example.app.gam.GamCombinationNativeAdWithBannerActivity"
+            android:name=".gam.GamCombinationNativeAdWithBannerActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".max.MaxMediationActivity"

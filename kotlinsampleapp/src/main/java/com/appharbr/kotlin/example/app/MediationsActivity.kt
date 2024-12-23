@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.appharbr.kotlin.example.app.admob.AdmobMediationActivity
 import com.appharbr.kotlin.example.app.gam.GamMediationActivity
+import com.appharbr.kotlin.example.app.level_play.LevelPlayInterstitialActivity
 import com.appharbr.kotlin.example.app.max.MaxMediationActivity
 import com.appharbr.kotlin.example.app.prebid.PrebidGamMenuActivity
 import com.appharbr.kotlin.example.app.ui.theme.AppHarbrExampleAppTheme
@@ -46,6 +47,7 @@ class MediationsActivity : ComponentActivity() {
                         MediationButton("Admob", AdmobMediationActivity::class.java)
                         MediationButton("Max", MaxMediationActivity::class.java)
                         MediationButton("Prebid Gam", PrebidGamMenuActivity::class.java)
+                        MediationButton("Level Play", LevelPlayInterstitialActivity::class.java)
 
                     }
                 }

@@ -16,18 +16,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.appharbr.kotlin.example.app.R
 import com.appharbr.kotlin.example.app.ui.theme.AppHarbrExampleAppTheme
-import com.appharbr.sdk.engine.AdBlockReason
 import com.appharbr.sdk.engine.AdSdk
 import com.appharbr.sdk.engine.AdStateResult
 import com.appharbr.sdk.engine.AppHarbr
-import com.appharbr.sdk.engine.adformat.AdFormat
-import com.appharbr.sdk.engine.listeners.AHListener
+import com.appharbr.sdk.engine.listeners.AHAnalyze
+import com.appharbr.sdk.engine.listeners.AdAnalyzedInfo
+import com.appharbr.sdk.engine.listeners.AdIncidentInfo
 import com.applovin.mediation.MaxAd
 import com.applovin.mediation.MaxAdListener
 import com.applovin.mediation.MaxError
 import com.applovin.mediation.ads.MaxInterstitialAd
+import com.applovin.sdk.AppLovinMediationProvider
 import com.applovin.sdk.AppLovinSdk
-import java.util.*
+import com.applovin.sdk.AppLovinSdkInitializationConfiguration
 
 class MaxInterstitialActivity : ComponentActivity() {
 
@@ -36,7 +37,7 @@ class MaxInterstitialActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        createAndLoadInterstitialAd()
+        initializeApplovinSDK()
 
         setContent {
             AppHarbrExampleAppTheme {
@@ -58,16 +59,27 @@ class MaxInterstitialActivity : ComponentActivity() {
         }
     }
 
-    private fun createAndLoadInterstitialAd() {
+    //	**** (1) ****
+    // Initialize Applovin SDK
+    private fun initializeApplovinSDK(){
         //Initialize AppLovinSdk
-        AppLovinSdk.getInstance(this).mediationProvider = "max"
-        AppLovinSdk.initializeSdk(this)
+        val initConfig = AppLovinSdkInitializationConfiguration.builder(
+            "YOUR_API_KEY",
+            this
+        ).setMediationProvider(AppLovinMediationProvider.MAX).build()
 
-        //	**** (1) ****
-        //Initialize max interstitial Ad
-        maxInterstitialAd = MaxInterstitialAd("YOUR_AD_UNIT_ID", this)
+        AppLovinSdk.getInstance(this).initialize(initConfig) { sdkConfig ->
+            Log.d("KotlinSample", "MAX mediation initialized successfully -> [${sdkConfig}]")
+            createAndLoadInterstitialAd()
+        }
+    }
 
+    private fun createAndLoadInterstitialAd() {
         //	**** (2) ****
+        //Initialize max interstitial Ad
+        maxInterstitialAd = MaxInterstitialAd("YOUR_UNIT_ID", this)
+
+        //	**** (3) ****
         // The publisher will initiate once the listener wrapper and will use it when load the Max interstitial ad.
         val ahWrapperListener = AppHarbr.addInterstitial<MaxAdListener>(
             AdSdk.MAX,
@@ -77,37 +89,37 @@ class MaxInterstitialActivity : ComponentActivity() {
             ahListener
         )
 
-        //	**** (3) ****
+        //	**** (4) ****
         //Set ahWrapperListener and load Ad
         maxInterstitialAd.setListener(ahWrapperListener)
         maxInterstitialAd.loadAd()
     }
 
+    fun checkAd() {
+        //	**** (5) ****
+        //Check whether Ad was blocked or not
+        val interstitialResult = AppHarbr.getInterstitialResult(maxInterstitialAd)
+        if (interstitialResult.adStateResult != AdStateResult.BLOCKED) {
+            Log.d(
+                "LOG",
+                "**************************** AppHarbr Permit to Display Max Interstitial ****************************"
+            )
+
+            if (maxInterstitialAd.isReady) {
+                maxInterstitialAd.showAd(this@MaxInterstitialActivity)
+            }
+        } else {
+            Log.d(
+                "LOG",
+                "**************************** AppHarbr Blocked Max Interstitial ****************************"
+            )
+            // You may call to reload Max interstitial
+        }
+    }
+
     private val maxAdListener: MaxAdListener = object : MaxAdListener {
         override fun onAdLoaded(ad: MaxAd) {
             Log.d("LOG", "Max - onAdLoaded")
-            if (maxInterstitialAd.isReady) {
-                checkAd()
-            }
-        }
-
-        private fun checkAd() {
-            //	**** (4) ****
-            //Check whether Ad was blocked or not
-            val interstitialState = AppHarbr.getInterstitialState(maxInterstitialAd)
-            if (interstitialState != AdStateResult.BLOCKED) {
-                Log.d(
-                    "LOG",
-                    "**************************** AppHarbr Permit to Display Max Interstitial ****************************"
-                )
-                maxInterstitialAd.showAd()
-            } else {
-                Log.d(
-                    "LOG",
-                    "**************************** AppHarbr Blocked Max Interstitial ****************************"
-                )
-                // You may call to reload Max interstitial
-            }
         }
 
         override fun onAdDisplayed(ad: MaxAd) {
@@ -116,7 +128,7 @@ class MaxInterstitialActivity : ComponentActivity() {
 
         override fun onAdHidden(ad: MaxAd) {
             Log.d("LOG", "Max - onAdHidden")
-            finish()
+            // You may load new add
         }
 
         override fun onAdClicked(ad: MaxAd) {
@@ -132,13 +144,31 @@ class MaxInterstitialActivity : ComponentActivity() {
         }
     }
 
-    var ahListener =
-        AHListener { view: Any?, unitId: String?, adFormat: AdFormat?, reasons: Array<AdBlockReason?>? ->
+    var ahListener = object : AHAnalyze {
+        override fun onAdBlocked(incidentInfo: AdIncidentInfo?) {
             Log.d(
                 "LOG",
-                "AppHarbr - onAdBlocked for: $unitId, reason: " + Arrays.toString(
-                    reasons
-                )
+                "AppHarbr - onAdBlocked for: ${incidentInfo?.unitId}, reason: " + incidentInfo?.blockReasons.contentToString()
+            )
+
+            if (incidentInfo?.shouldLoadNewAd == true) {
+                // If add was blocked before being displayed, load new add
+            }
+        }
+
+        override fun onAdIncident(incidentInfo: AdIncidentInfo?) {
+            Log.d(
+                "LOG",
+                "AppHarbr - onAdIncident for: ${incidentInfo?.unitId}, reason: " + incidentInfo?.reportReasons.contentToString()
             )
         }
+
+        override fun onAdAnalyzed(analyzedInfo: AdAnalyzedInfo?) {
+            Log.d(
+                "LOG",
+                "AppHarbr - onAdAnalyzed for: ${analyzedInfo?.unitId}, result: ${analyzedInfo?.analyzedResult}"
+            )
+            checkAd()
+        }
+    }
 }

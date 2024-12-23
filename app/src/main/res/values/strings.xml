@@ -37,4 +37,6 @@
     <string name="native_ad">Native</string>
     <string name="max_recycler_view">RecyclerView with banner Ad</string>
     <string name="max_recycler_view_native">RecyclerView with Native Ad</string>
+    <string name="levelplay_interstitial_screen">LevelPlay Interstitial Screen</string>
+    <string name="level_play">Level Play</string>
 </resources>

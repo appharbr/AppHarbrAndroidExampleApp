@@ -61,26 +61,35 @@ class GamNativeAdActivity : ComponentActivity() {
             this,
             applicationContext.resources.getString(R.string.gam_native_ad_unit_id)
         ).forNativeAd { nativeAd: NativeAd ->
-
-            val adResult = AppHarbr.shouldBlockNativeAd(AdSdk.GAM, nativeAd, applicationContext.resources.getString(R.string.gam_native_ad_unit_id))
-            when (adResult.adStateResult) {
-                AdStateResult.BLOCKED -> {
-                    nativeAdState.value = null
-                    Log.e("LOG", "Native ad was blocked by appharbr")
-                    return@forNativeAd
-                }
-                else -> {}
-            }
-
             if (isDestroyed) {
                 nativeAdState.value?.destroy()
                 return@forNativeAd
             }
-            nativeAdState.value?.destroy()
-            nativeAdState.value = nativeAd
+
+            val adResult = AppHarbr.shouldBlockNativeAd(
+                AdSdk.GAM,
+                nativeAd,
+                applicationContext.resources.getString(R.string.admob_native_ad_unit_id)
+            )
+
+            when (adResult.adStateResult) {
+                AdStateResult.BLOCKED -> {
+                    nativeAdState.value = null
+                    Log.e("LOG", "Native ad was blocked by appharbr")
+                    // ***** Publisher may reload ad *****
+                    return@forNativeAd
+                }
+
+                else -> {
+                    // Set native add object into state
+                    nativeAdState.value?.destroy()
+                    nativeAdState.value = nativeAd
+                }
+            }
         }.withAdListener(object : AdListener() {
             override fun onAdFailedToLoad(adError: LoadAdError) {
                 Log.e("LOG", "Handle the failure by logging, altering the UI, and so on.")
+                // ***** Publisher may reload ad *****
             }
         }).withNativeAdOptions(
             NativeAdOptions.Builder().build()

@@ -5,27 +5,25 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.appharbr.example.app.databinding.ActivityMaxRecyclerViewBinding;
 import com.appharbr.example.app.databinding.RecyclerViewItemBannerBinding;
 import com.appharbr.sdk.engine.AdSdk;
 import com.appharbr.sdk.engine.AppHarbr;
-import com.appharbr.sdk.engine.listeners.AHListener;
 import com.applovin.mediation.MaxAd;
 import com.applovin.mediation.MaxAdFormat;
 import com.applovin.mediation.MaxAdViewAdListener;
 import com.applovin.mediation.MaxError;
 import com.applovin.mediation.ads.MaxAdView;
+import com.applovin.sdk.AppLovinMediationProvider;
 import com.applovin.sdk.AppLovinSdk;
+import com.applovin.sdk.AppLovinSdkInitializationConfiguration;
 import com.applovin.sdk.AppLovinSdkUtils;
 
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Arrays;
 
 public class MaxBannerRecyclerViewActivity extends AppCompatActivity {
 
@@ -38,15 +36,25 @@ public class MaxBannerRecyclerViewActivity extends AppCompatActivity {
 	binding = ActivityMaxRecyclerViewBinding.inflate(getLayoutInflater());
 	setContentView(binding.getRoot());
 
-	//Initialize AppLovinSdk
-	AppLovinSdk.getInstance(this).setMediationProvider("max");
-	AppLovinSdk.initializeSdk(this);
+		//	**** (1) ****
+		//Initialize AppLovinSdk
+		AppLovinSdkInitializationConfiguration initConfig = AppLovinSdkInitializationConfiguration.builder(
+				"YOUR_API_KEY",
+				this
+		).setMediationProvider(AppLovinMediationProvider.MAX).build();
 
-	//	**** (1) ****
-	//Create Adapter and Setup recyclerview
-	binding.adRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-	binding.adRecyclerView.setAdapter(new AdRecyclerViewAdapter());
+		AppLovinSdk.getInstance(this).initialize(initConfig, (sdkConfig) -> {
+			Log.d("KotlinSample", "MAX mediation initialized successfully -> [" + sdkConfig + ']');
+			loadBannerAd(binding);
+		});
     }
+
+	private void loadBannerAd(ActivityMaxRecyclerViewBinding binding) {
+		//	**** (2) ****
+		//Create Adapter and Setup recyclerview
+		binding.adRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+		binding.adRecyclerView.setAdapter(new AdRecyclerViewAdapter());
+	}
 
     //Create adapter
     class AdRecyclerViewAdapter extends RecyclerView.Adapter<AdAdapterViewHolder> {
@@ -105,26 +113,26 @@ public class MaxBannerRecyclerViewActivity extends AppCompatActivity {
 
 	    //Setting listener mandatory for AppHarbr to scan loaded Ad
 	    currentBannerAdView.setListener(new MaxAdViewAdListener() {
-		public void onAdExpanded(MaxAd ad) {}
+		public void onAdExpanded(@NonNull MaxAd ad) {}
 
-		public void onAdCollapsed(MaxAd ad) {}
+		public void onAdCollapsed(@NonNull MaxAd ad) {}
 
-		public void onAdLoaded(MaxAd ad) {}
+		public void onAdLoaded(@NonNull MaxAd ad) {}
 
-		public void onAdDisplayed(MaxAd ad) {}
+		public void onAdDisplayed(@NonNull MaxAd ad) {}
 
-		public void onAdHidden(MaxAd ad) {}
+		public void onAdHidden(@NonNull MaxAd ad) {}
 
-		public void onAdClicked(MaxAd ad) {}
+		public void onAdClicked(@NonNull MaxAd ad) {}
 
-		public void onAdLoadFailed(String adUnitId, MaxError error) {}
+		public void onAdLoadFailed(@NonNull String adUnitId, @NonNull MaxError error) {}
 
-		public void onAdDisplayFailed(MaxAd ad, MaxError error) {}
+		public void onAdDisplayFailed(@NonNull MaxAd ad, @NonNull MaxError error) {}
 	    });
 
 	    //Add Max's banner adView instance for Monitoring
 	    //Adding Lifecycle is important to avoid memory leaks
-	    AppHarbr.addBannerView(AdSdk.MAX, currentBannerAdView, getLifecycle(), ahListener);
+	    AppHarbr.addBannerView(AdSdk.MAX, currentBannerAdView, getLifecycle(), null);
 
 	    //Load banner
 	    currentBannerAdView.loadAd();
@@ -142,9 +150,9 @@ public class MaxBannerRecyclerViewActivity extends AppCompatActivity {
 	}
 
 	//Crating AHListener to get result if Ad was blocked and why
-	private final AHListener ahListener = (view, unitId, adFormat, reasons)
-		-> Log.d("LOG", "AppHarbr - onAdBlocked for: " + unitId + ", reason: " + Arrays.toString(reasons));
-
+//	private final AHListener ahListener = (view, unitId, adFormat, reasons)
+//		-> Log.d("LOG", "AppHarbr - onAdBlocked for: " + unitId + ", reason: " + Arrays.toString(reasons));
+//
     }
 
 }

@@ -17,6 +17,7 @@
 package com.appharbr.example.app.admob;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -39,8 +40,8 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.VideoController;
 import com.google.android.gms.ads.VideoOptions;
-import com.google.android.gms.ads.formats.NativeAdOptions;
 import com.google.android.gms.ads.nativead.NativeAd;
+import com.google.android.gms.ads.nativead.NativeAdOptions;
 import com.google.android.gms.ads.nativead.NativeAdView;
 
 import java.util.Locale;
@@ -122,6 +123,7 @@ public class AdMobNativeAdActivity extends AppCompatActivity {
         if (adResult.getAdStateResult() == AdStateResult.BLOCKED) {
             // **** AppHarbr Blocked The Native Ad - Do Not Render it. ****
             // May request another ad.
+            Log.e("LOG", "Native ad was blocked by appharbr");
             refresh.setEnabled(true);
             return;
         }

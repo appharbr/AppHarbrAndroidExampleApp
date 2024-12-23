@@ -172,6 +172,9 @@ class PrebidGamNativeAdActivity : ComponentActivity() {
 
                     override fun getNimbusObject(adFormat: AdFormat, mediationAdUnitId: String) =
                         null
+
+                    override fun getAmazonObject(adFormat: AdFormat, mediationAdUnitId: String) =
+                        null
                 },
                 AD_UNIT_ID
             )
@@ -205,6 +208,11 @@ class PrebidGamNativeAdActivity : ComponentActivity() {
                         ) = prebidNativeAdUnit
 
                         override fun getNimbusObject(
+                            adFormat: AdFormat,
+                            mediationAdUnitId: String
+                        ) = null
+
+                        override fun getAmazonObject(
                             adFormat: AdFormat,
                             mediationAdUnitId: String
                         ) = null

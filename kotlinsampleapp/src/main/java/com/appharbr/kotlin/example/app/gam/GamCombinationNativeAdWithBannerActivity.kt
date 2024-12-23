@@ -1,11 +1,13 @@
 package com.appharbr.kotlin.example.app.gam
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -21,22 +23,17 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.graphics.drawable.toBitmap
 import com.appharbr.kotlin.example.app.R
 import com.appharbr.kotlin.example.app.ui.theme.AppHarbrExampleAppTheme
-import com.appharbr.sdk.engine.AdBlockReason
 import com.appharbr.sdk.engine.AdSdk
 import com.appharbr.sdk.engine.AdStateResult
 import com.appharbr.sdk.engine.AppHarbr
-import com.appharbr.sdk.engine.adformat.AdFormat
-import com.appharbr.sdk.engine.listeners.AHListener
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdLoader
 import com.google.android.gms.ads.AdSize
-import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.admanager.AdManagerAdRequest
 import com.google.android.gms.ads.admanager.AdManagerAdView
 import com.google.android.gms.ads.formats.AdManagerAdViewOptions
 import com.google.android.gms.ads.nativead.NativeAd
-import java.util.*
 
 class GamCombinationNativeAdWithBannerActivity : ComponentActivity() {
 
@@ -96,7 +93,7 @@ class GamCombinationNativeAdWithBannerActivity : ComponentActivity() {
                 adManagerAdViewState.value?.let {
                     AppHarbr.removeBannerView(it)
                 }
-                AppHarbr.addBannerViewFromAdLoader(AdSdk.GAM, adView, ahListener)
+                AppHarbr.addBannerViewFromAdLoader(AdSdk.GAM, adView, null)
 
                 adManagerAdViewState.value = adView
 
@@ -136,14 +133,14 @@ class GamCombinationNativeAdWithBannerActivity : ComponentActivity() {
         }
     }
 
-    private val ahListener =
-        AHListener { view: Any?, unitId: String?, adFormat: AdFormat?, reasons: Array<AdBlockReason?>? ->
-            Log.d(
-                "LOG",
-                "AppHarbr - onAdBlocked for: $unitId, reason: " + Arrays.toString(
-                    reasons
-                )
-            )
-        }
+//    private val ahListener =
+//        AHListener { view: Any?, unitId: String?, adFormat: AdFormat?, reasons: Array<AdBlockReason?>? ->
+//            Log.d(
+//                "LOG",
+//                "AppHarbr - onAdBlocked for: $unitId, reason: " + Arrays.toString(
+//                    reasons
+//                )
+//            )
+//        }
 
 }
