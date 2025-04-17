@@ -26,6 +26,7 @@
     <string name="admob_interstitial_ad_unit_id">ca-app-pub-3940256099942544/1033173712</string>
     <string name="admob_rewarded_ad_unit_id">	ca-app-pub-3940256099942544/5224354917</string>
     <string name="admob_native_ad_unit_id">ca-app-pub-3940256099942544/2247696110</string>
+    <string name="title_activity_legacy_level_play_interstitial">LegacyLevelPlayInterstitialActivity</string>
     <string name="title_activity_level_play_interstitial">LevelPlayInterstitialActivity</string>
 
 </resources>

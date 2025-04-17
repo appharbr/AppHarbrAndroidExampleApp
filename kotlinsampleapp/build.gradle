@@ -59,7 +59,8 @@ dependencies {
     // Mediation
     implementation 'com.google.android.gms:play-services-ads:23.4.0'
     implementation 'com.applovin:applovin-sdk:13.0.1'
-    implementation "com.ironsource.sdk:mediationsdk:8.4.0"
+    implementation "com.unity3d.ads-mediation:mediation-sdk:8.7.0"
+    implementation 'com.unity3d.ads-mediation:adquality-sdk:7.23.2'
 
     //Prebid
     implementation "org.prebid:prebid-mobile-sdk:2.1.8"
