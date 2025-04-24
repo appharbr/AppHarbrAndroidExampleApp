@@ -16,6 +16,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppHarbrExampleApp">
         <activity
+            android:name=".level_play.LevelPlayLegacyInterstitialActivity"
+            android:exported="false"
+            android:label="@string/title_activity_legacy_level_play_interstitial"
+            android:theme="@style/Theme.AppHarbrExampleApp" />
+        <activity
             android:name=".level_play.LevelPlayInterstitialActivity"
             android:exported="false"
             android:label="@string/title_activity_level_play_interstitial"
