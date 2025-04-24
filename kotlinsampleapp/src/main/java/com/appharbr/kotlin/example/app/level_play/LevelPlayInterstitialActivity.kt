@@ -121,18 +121,18 @@ class LevelPlayInterstitialActivity : ComponentActivity() {
     fun showAd() {
         val stateResult = AppHarbr.getInterstitialResult(interstitialAd)
         Log.w(
-            "KotlinSample",
+            "LOG",
             this@LevelPlayInterstitialActivity.toString() + "-> state[${stateResult.adStateResult}] ->\n"
         )
 
         //	**** (5) ****
         //Check whether Ad was blocked or not
         if (interstitialAd?.isAdReady() == true && stateResult.adStateResult != AdStateResult.BLOCKED) {
-            Log.d("D", "showAd for interstitial")
+            Log.d("LOG", "showAd for interstitial")
             interstitialAd?.showAd(this)
         } else {
             Log.e(
-                "KotlinSample",
+                "LOG",
                 "Ad is not ready yet isReadyState[${interstitialAd?.isAdReady()}], or was blocked by AppHarbr SDK"
             )
         }
